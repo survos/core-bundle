@@ -361,4 +361,50 @@ class SurvosUtils
     }
 
 
+    /**
+     * Normalize a language tag to 2-letter ISO-639-1 when possible.
+     * Returns null if it can't be normalized safely.
+     */
+    public static function normalizeIso639(?string $raw): ?string
+    {
+        if ($raw === null) return null;
+        $s = strtolower(trim($raw));
+        if ($s === '' || $s === '\\n' || $s === '\\N') return null;
+
+        // common 3-letter → 2-letter, and OST oddities
+        static $map = [
+            'eng' => 'en', 'en-us' => 'en', 'en-gb' => 'en',
+            'spa' => 'es', 'sp' => 'es', 'esl' => 'es',
+            'por' => 'pt', 'pb' => 'pt', 'pob' => 'pt', 'ptbr' => 'pt', 'pt-br' => 'pt',
+            'fre' => 'fr', 'fra' => 'fr',
+            'ger' => 'de', 'deu' => 'de',
+            'dut' => 'nl', 'nld' => 'nl',
+            'rum' => 'ro', 'ron' => 'ro',
+            'alb' => 'sq',
+            'slo' => 'sk', 'slk' => 'sk',
+            'baq' => 'eu', 'eus' => 'eu',
+            'chi' => 'zh', 'zho' => 'zh', 'chs' => 'zh', 'cht' => 'zh',
+        ];
+        if (isset($map[$s])) {
+            $s = $map[$s];
+        }
+
+        // Accept 2-letter a–z only
+        if (preg_match('/^[a-z]{2}$/', $s)) {
+            return $s;
+        }
+
+        // Last-resort: if it's a longer token like "english", try first two letters
+        if (preg_match('/^[a-z]{3,}$/', $s)) {
+            $guess = substr($s, 0, 2);
+            if (preg_match('/^[a-z]{2}$/', $guess)) {
+                return $guess;
+            }
+        }
+        dd($raw);
+
+        return null;
+    }
+
+
 }
