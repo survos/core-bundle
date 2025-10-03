@@ -4,79 +4,82 @@ declare(strict_types=1);
 namespace Survos\CoreBundle\Util;
 
 /**
- * Unified JSONL writer (plain or gzip) with both row- and line-level APIs.
- * - write(array $row, bool $pretty=false)
- * - writeLine(string $line)
- * - flush(), close()
+ * Append JSON-encoded rows (arrays/objects) to a JSONL file (optionally gzipped).
+ * Also maintains a sidecar index (.idx.json) with unique keys for fast lookup.
  */
 final class JsonlWriter
 {
-    /** @var resource */
+    private $fh;
+    private bool $gzip;
+    private string $filename;
+    private string $indexFile;
+    private array $index = [];
 
-    /**
-     * @param resource $handle
-     */
-    public function __construct(private $handle, private bool $gzip=false)
+    private function __construct(string $filename)
     {
-        $this->h = $handle;
-        $this->gzip = $gzip;
-    }
+        $this->filename = $filename;
+        $this->gzip     = str_ends_with($filename, '.gz');
+        $this->indexFile = $filename . '.idx.json';
 
-    public static function open(string $path, bool $gzip = false, int $modeLevel = 6): self
-    {
-        if (!is_dir(\dirname($path))) {
-            mkdir(\dirname($path), 0775, true);
+        // load existing index if present
+        if (is_file($this->indexFile)) {
+            $this->index = json_decode((string)file_get_contents($this->indexFile), true) ?? [];
         }
 
-        if ($gzip) {
-            $h = @gzopen($path, "a{$modeLevel}");
-            if (!$h) { $h = @gzopen($path, "w{$modeLevel}"); }
-            if (!$h) {
-                throw new \RuntimeException("Unable to open gzip file for write: $path");
-            }
-            return new self($h, true);
-        }
-
-        $h = @fopen($path, 'ab');
-        if (!$h) { $h = @fopen($path, 'wb'); }
-        if (!$h) {
-            throw new \RuntimeException("Unable to open file for write: $path");
-        }
-        return new self($h, false);
-    }
-
-    public function write(array $row, bool $pretty = false): void
-    {
-        $flags = JSON_UNESCAPED_UNICODE;
-        $json = $pretty ? json_encode($row, $flags|JSON_PRETTY_PRINT) : json_encode($row, $flags);
-        $this->writeLine($json);
-    }
-
-    public function writeLine(string $line): void
-    {
-        if ($line === '' || $line[strlen($line)-1] !== "\n") {
-            $line .= "\n";
-        }
         if ($this->gzip) {
-            gzwrite($this->h, $line);
+            if (!function_exists('gzopen')) {
+                throw new \RuntimeException('zlib not available: cannot write gzip file ' . $filename);
+            }
+            $this->fh = gzopen($filename, 'ab9');
         } else {
-            fwrite($this->h, $line);
+            $this->fh = fopen($filename, 'ab');
+        }
+        if (!$this->fh) {
+            throw new \RuntimeException("Cannot open $filename for appending");
         }
     }
 
-    public function flush(): void
+    public static function open(string $filename): self
     {
-        if (!$this->gzip) {
-            fflush($this->h);
+        return new self($filename);
+    }
+
+    public function write(array $row, ?string $tokenCode = null): void
+    {
+        if ($tokenCode) {
+            if (isset($this->index[$tokenCode])) {
+                // already written, skip
+                return;
+            }
+            $this->index[$tokenCode] = true;
+        }
+
+        $line = json_encode($row, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+        if ($this->gzip) {
+            gzwrite($this->fh, $line);
+        } else {
+            fwrite($this->fh, $line);
         }
     }
 
     public function close(): void
     {
-        if ($this->gzip) {
-            gzclose($this->h);
-        } else {
-            fclose($this->h);
+        try {
+            // persist index
+            file_put_contents($this->indexFile, json_encode($this->index, JSON_PRETTY_PRINT));
+        } finally {
+            if ($this->gzip) {
+                gzclose($this->fh);
+            } else {
+                fclose($this->fh);
+            }
+        }
+    }
+
+    public function __destruct()
+    {
+        if (is_resource($this->fh)) {
+            $this->close();
         }
     }
 }

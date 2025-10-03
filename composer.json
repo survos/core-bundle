@@ -15,7 +15,8 @@
         "twig/twig": "^3.4",
         "symfony/string": "^7.3",
         "symfony/property-access": "^7.3",
-        "doctrine/common": "^3.5"
+        "doctrine/common": "^3.5",
+      "ext-zlib": "*"
     },
     "require-dev": {
         "doctrine/orm": "^2.12 || ^3.3",

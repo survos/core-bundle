@@ -3,6 +3,7 @@
 namespace Survos\CoreBundle;
 
 use Survos\CoreBundle\Request\ParameterResolver;
+use Survos\CoreBundle\Service\ChunkDownloader;
 use Survos\CoreBundle\Service\SurvosUtils;
 use Survos\CoreBundle\Twig\TwigExtension;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
@@ -23,6 +24,12 @@ class SurvosCoreBundle extends AbstractBundle
 
         $builder
             ->autowire(SurvosUtils::class)
+            ->setAutoconfigured(true)
+            ->setAutowired(true);
+
+        $builder
+            ->autowire(ChunkDownloader::class)
+            ->setPublic(true)
             ->setAutoconfigured(true)
             ->setAutowired(true);
 
