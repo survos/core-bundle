@@ -6,6 +6,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -15,29 +16,32 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use JetBrains\PhpStorm\Deprecated;
 use Survos\StateBundle\Traits\EasyMarkingTrait;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Workflow\WorkflowInterface;
 
+#[Deprecated()]
 abstract class BaseCrudController extends AbstractCrudController
 {
-
-    public function xxconfigureActions(Actions $actions): Actions
-    {
-        return $actions
-            ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ->remove(Crud::PAGE_INDEX, Action::DELETE)
-            // Add the 'DETAIL' action on the index page
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ;
-    }
-
+    private array $seen = [];
 
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
             ->showEntityActionsInlined()
             ;
+    }
+
+    public function push(FieldInterface $field): ?FieldInterface
+    {
+        $dto = $field->getAsDto();
+        $property = $dto->getProperty();
+        if (in_array($property, $this->seen)) {
+            return null;
+        }
+        $this->seen[] = $property;
+        return $field;
     }
 
     public function configureActions(Actions $actions): Actions
