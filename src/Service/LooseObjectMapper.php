@@ -9,7 +9,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
-use Symfony\Component\PropertyInfo\Type;
+use Symfony\Component\TypeInfo\Type;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\String\UnicodeString;
 
@@ -218,4 +218,84 @@ final class LooseObjectMapper
         }
         return $out;
     }
+
+    // add inside the class
+
+    /** Convert field name to snake_case (id => id, accessionNumber => accession_number). */
+    public function toSnake(string $name): string
+    {
+        return (new UnicodeString($name))->snake()->toString();
+    }
+
+    /** Convert field name (snake/kebab) to lowerCamelCase (accession_number => accessionNumber). */
+    public function toCamel(string $name): string
+    {
+        $u = new UnicodeString(str_replace('-', '_', $name));
+        $parts = array_map(
+            fn ($p) => (new UnicodeString($p))->title()->toString(),
+            array_filter(explode('_', (string) $u))
+        );
+        return lcfirst(implode('', $parts));
+    }
+
+    /**
+     * Generate likely CSV/array key candidates for a given entity field.
+     * Order matters: exact, snake, camel, then lowercase fallbacks.
+     */
+    public function keyCandidates(string $field): array
+    {
+        $snake = $this->toSnake($field);
+        $camel = $this->toCamel($field);
+
+        $cands = [
+            $field,
+            $snake,
+            $camel,
+            strtolower($field),
+            strtolower($snake),
+            strtolower($camel),
+        ];
+
+        // de-dup while preserving order
+        $seen = [];
+        $out = [];
+        foreach ($cands as $c) {
+            if (!isset($seen[$c])) {
+                $seen[$c] = true;
+                $out[] = $c;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Find the actual row key for an entity field, tolerating snake/camel and case.
+     * Returns the original key from $row, or null if not found.
+     */
+    public function resolveRowKey(array $row, string $field): ?string
+    {
+        // fast path: exact and snake/camel variants
+        foreach ($this->keyCandidates($field) as $cand) {
+            if (array_key_exists($cand, $row)) {
+                return $cand;
+            }
+        }
+
+        // fallback case-insensitive scan once
+        $lowerMap = array_change_key_case($row, CASE_LOWER);
+        foreach ($this->keyCandidates($field) as $cand) {
+            $lc = strtolower($cand);
+            if (array_key_exists($lc, $lowerMap)) {
+                // recover original key (preserve original casing)
+                foreach ($row as $orig => $_) {
+                    if (strtolower($orig) === $lc) {
+                        return $orig;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
 }

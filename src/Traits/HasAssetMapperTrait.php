@@ -45,12 +45,13 @@ trait HasAssetMapperTrait
 
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
     {
+        // NOTE: you MUST set keyword: ["symfony-ux"] in composer.json for automatically including the assets
 
         if (!$this->isAssetMapperAvailable($builder)) {
             return;
         }
 
-        $builder->prependExtensionConfig('framework', [
+        $builder->prependExtensionConfig('framework', $x = [
             'asset_mapper' => [
                 'paths' => $this->getPaths(),
             ],
