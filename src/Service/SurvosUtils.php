@@ -405,6 +405,46 @@ class SurvosUtils
 
         return null;
     }
+    public static function getSymfonyProxySites(): array
+    {
+        $html = file_get_contents('http://127.0.0.1:7080');
 
+        preg_match_all(
+            '#<tr><td>([^<]+)<td>(?:<a[^>]+>(\d+)</a>|[^<]+)<td>(.*?)<(?:tr|/tr)#s',
+            $html,
+            $matches,
+            PREG_SET_ORDER
+        );
 
+        $sites = [];
+        foreach ($matches as $match) {
+            $directory = trim($match[1]);
+            $port = !empty($match[2]) ? (int)$match[2] : null;
+            $domainCell = $match[3];
+
+            // Extract all domains from the cell (match href or plain text)
+            preg_match_all('#https://[^<>"]+/#', $domainCell, $domainMatches);
+            $domains = array_unique($domainMatches[0]);
+
+            // Extract code from first non-wildcard domain
+            $code = null;
+            foreach ($domains as $domain) {
+                if (!str_contains($domain, '*')) {
+                    if (preg_match('#https://([^./]+)\.wip/#', $domain, $codeMatch)) {
+                        $code = $codeMatch[1];
+                        break;
+                    }
+                }
+            }
+
+            $sites[] = [
+                'directory' => $directory,
+                'port' => $port,
+                'code' => $code,
+                'domains' => array_values($domains),
+            ];
+        }
+
+        return $sites;
+    }
 }
