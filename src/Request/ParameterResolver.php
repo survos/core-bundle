@@ -65,14 +65,15 @@ class ParameterResolver implements ValueResolverInterface
             $conn = $em->getConnection();
             $repository = $this->entityManager->getRepository($argumentType);
 //            dump($lookupParams, $this->entityManager, $conn, $argument, $argumentType, $repository, $repository::class);
-            if (count($lookupParams) > 1) dd($lookupParams);
-            if ($entity = $repository->findOneBy($lookupParams)) {
-                $history[$param] = $entity;
-                return [$entity];
-            } else {
-                assert(false, "Missing $argumentType parameter");
-//                dd(missingEntity: $lookupParams);
+            if (count($lookupParams) > 1) {
+                throw new \RuntimeException("Multiple params not yet supported:");
             }
+            if ($entity = $repository->findOneBy($lookupParams)) {
+                $this->history[$param] = $entity;
+                return [$entity];
+            }
+
+            throw new \RuntimeException("Could not find $argumentType with params $lookupParams");
         }
         return [];
     }

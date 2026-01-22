@@ -30,7 +30,7 @@
         "symfony/asset-mapper": "^7.3||^8.0",
         "symfony/console": "^7.3||^8.0",
         "easycorp/easyadmin-bundle": "^4.24",
-        "symfony/debug": "^4.4"
+        "symfony/error-handler": "^7.4||^8.0"
     },
     "autoload": {
         "psr-4": {
