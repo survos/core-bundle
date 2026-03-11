@@ -13,6 +13,7 @@ use function Symfony\Component\String\u;
 
 class ParameterResolver implements ValueResolverInterface
 {
+    private array $history = [];
     public function __construct(
         // it's possible that core-bundle is included in a project (like noise) with no entity manager)
         private ?EntityManagerInterface $entityManager=null
@@ -30,7 +31,6 @@ class ParameterResolver implements ValueResolverInterface
             return [];
         }
         // keep track of the history in case there's multiple params, e.g. {state}/{city}
-        static $history = [];
         // get the argument type (e.g. BookingId)
         $argumentType = $argument->getType();
 
@@ -49,7 +49,7 @@ class ParameterResolver implements ValueResolverInterface
                     if (class_exists($getter)) {
                         // hack!!
                         $entityParam = u($param)->before('Id')->toString();
-                        $lookupParams[$entityParam] = $history[$param];
+                        $lookupParams[$entityParam] = $this->history[$param];
                     } else {
                         if ($value = $request->attributes->get($param)) {
                             $lookupParams[$getter] = $value;
