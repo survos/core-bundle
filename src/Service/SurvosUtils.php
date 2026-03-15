@@ -299,8 +299,12 @@ class SurvosUtils
      * @param mixed $data  An object (stdClass) or array (or scalar)
      * @return mixed       The cleaned object/array, or the original scalar
      */
-    static function removeNullsAndEmptyArrays($data): object|array
+    static function removeNullsAndEmptyArrays($data): object|array|null
     {
+        if ($data === null) {
+            return null;
+        }
+
         $isObject = is_object($data);
         if ($isObject) {
             $data = (array) $data;
