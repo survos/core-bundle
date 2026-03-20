@@ -51,7 +51,9 @@ class ParameterResolver implements ValueResolverInterface
                         $entityParam = u($param)->before('Id')->toString();
                         $lookupParams[$entityParam] = $this->history[$param];
                     } else {
-                        if ($value = $request->attributes->get($param)) {
+                        $value = $request->attributes->get($param);
+                        // Skip if already resolved to an object (another resolver ran first)
+                        if ($value !== null && !is_object($value)) {
                             $lookupParams[$getter] = $value;
                         }
                     }
@@ -73,7 +75,7 @@ class ParameterResolver implements ValueResolverInterface
                 return [$entity];
             }
 
-            throw new \RuntimeException("Could not find $argumentType with params $lookupParams");
+            throw new \RuntimeException("Could not find $argumentType with params " . json_encode($lookupParams)) ;
         }
         return [];
     }
