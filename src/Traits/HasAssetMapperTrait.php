@@ -28,8 +28,9 @@ trait HasAssetMapperTrait
 
     public function getPaths(): array
     {
-        $dir = realpath(__DIR__ . '/../assets/');
-        assert(file_exists($dir), 'assets path must exist: ' . __DIR__);
+        $bundleFile = (new \ReflectionClass($this))->getFileName();
+        $dir = realpath(dirname($bundleFile) . '/../assets/');
+        assert(file_exists($dir), 'assets path must exist: ' . $bundleFile);
         return [$dir => static::ASSET_NAMESPACE];
     }
 
