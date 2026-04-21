@@ -18,6 +18,7 @@ trait UlidTrait
 {
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 26, unique: true)]
+    #[Groups(['ulid'])]
     public private(set) ?string $id = null;
 
     #[ORM\PrePersist]
