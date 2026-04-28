@@ -130,6 +130,37 @@ class SurvosUtils
 
     }
 
+    /**
+     * Stable admin/browser code for an entity class.
+     *
+     * Examples:
+     * - App\Entity\Intake => app_intake
+     * - Survos\OutreachBundle\Entity\Contact => outreach_contact
+     *
+     * @param class-string $class
+     */
+    public static function entityCode(string $class): string
+    {
+        $parts = explode('\\', ltrim($class, '\\'));
+        $prefix = 'App';
+
+        foreach ($parts as $part) {
+            if ($part === 'App') {
+                $prefix = 'App';
+                break;
+            }
+
+            if (str_ends_with($part, 'Bundle')) {
+                $prefix = substr($part, 0, -6);
+                break;
+            }
+        }
+
+        $shortName = (new \ReflectionClass($class))->getShortName();
+
+        return self::slugify(u($prefix)->snake()->toString()) . '_' . self::slugify(u($shortName)->snake()->toString());
+    }
+
 
     public static function humanFilesize($size, $precision = 2): string
     {
