@@ -6,6 +6,7 @@ use Survos\CoreBundle\Service\SurvosUtils;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use Twig\TwigTest;
 
 class TwigExtension extends AbstractExtension
 {
@@ -37,6 +38,13 @@ class TwigExtension extends AbstractExtension
     {
         return [
 //            new TwigFunction('function_name', [::class, 'doSomething']),
+        ];
+    }
+
+    public function getTests(): array
+    {
+        return [
+            new TwigTest('instanceof', fn(mixed $var, string $class) => $var instanceof $class),
         ];
     }
 
