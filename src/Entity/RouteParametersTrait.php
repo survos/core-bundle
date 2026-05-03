@@ -6,6 +6,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 use function Symfony\Component\String\u;
 
+/**
+ * @deprecated Use #[Survos\FieldBundle\Attribute\RouteIdentity] +
+ *             Survos\FieldBundle\Entity\RouteIdentityTrait instead. The new
+ *             pair is attribute-driven, walks the parent chain automatically,
+ *             and is the same `getRp()` contract — drop-in replacement.
+ *
+ *             Existing entities using this trait keep working; migrate at
+ *             your own pace, one entity per PR.
+ */
 trait RouteParametersTrait
 {
 //    public function getId(): int|string
