@@ -18,14 +18,17 @@ trait QueryBuilderHelperTrait
             assert(is_string($field));
             assert(is_array($r));
 //            dump($field, $r, $r['count'], $r['field']);
-            $key = $r[$field] ?? ''; // not really...
+            $key = $r[$field] ?? '';
             if (is_array($key)) {
                 continue; // doctrine can't handle arrays for facets, just scalars
-                dd($key, $field, $r);
             }
-
+            if (is_bool($key)) {
+                $key = $key ? '1' : '0';
+            }
+            if ($key === null) {
+                continue;
+            }
             $count = $r['count'];
-            assert(is_integer($key) || is_string($key), json_encode($key));
             assert(is_integer($count));
             $counts[$key] = $count;
         }
