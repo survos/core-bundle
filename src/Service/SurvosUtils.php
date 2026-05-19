@@ -229,17 +229,18 @@ class SurvosUtils
     }
 
 
-    public static function assertKeyExists($key, array|object $array, string $message = '')
+    /** @deprecated Use \Survos\DebugUtils\Assert::keyExists() instead. */
+    #[\Deprecated('Use Survos\DebugUtils\Assert::keyExists() instead')]
+    public static function assertKeyExists($key, array|object $array, string $message = ''): void
     {
-        if (is_object($array)) {
-            $array = (array)$array;
-        }
-        assert(array_key_exists($key, $array), self::missingKey($key, $array) . "\n$message");
+        \Survos\DebugUtils\Assert::keyExists($key, $array, $message);
     }
 
-    public static function assertInArray($key, array $array, string $message = '')
+    /** @deprecated Use \Survos\DebugUtils\Assert::inArray() instead. */
+    #[\Deprecated('Use Survos\DebugUtils\Assert::inArray() instead')]
+    public static function assertInArray($key, array $array, string $message = ''): void
     {
-        assert(in_array($key, $array), self::missingElement($key, $array) . "\n$message");
+        \Survos\DebugUtils\Assert::inArray($key, $array, $message);
     }
 
 
@@ -321,11 +322,9 @@ class SurvosUtils
     }
 
     /**
-     * Recursively remove all nulls and empty arrays from an object or array.
-     *
-     * @param mixed $data  An object (stdClass) or array (or scalar)
-     * @return mixed       The cleaned object/array, or the original scalar
+     * @deprecated Use \Survos\DataContracts\Util\Arrays::sparse() instead.
      */
+    #[\Deprecated('Use Survos\DataContracts\Util\Arrays::sparse() instead')]
     static function removeNullsAndEmptyArrays($data): object|array|null
     {
         if ($data === null) {
