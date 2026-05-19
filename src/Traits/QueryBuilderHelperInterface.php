@@ -2,9 +2,10 @@
 
 namespace Survos\CoreBundle\Traits;
 
-interface QueryBuilderHelperInterface
+/**
+ * @deprecated Use \Survos\FieldBundle\Repository\QueryBuilderHelperInterface instead.
+ */
+#[\Deprecated('Use Survos\FieldBundle\Repository\QueryBuilderHelperInterface instead')]
+interface QueryBuilderHelperInterface extends \Survos\FieldBundle\Repository\QueryBuilderHelperInterface
 {
-    public function getCounts(string $field): array;
-
-    public function findBygetCountsByField($field = 'marking', $filters = []): array;
 }

@@ -131,14 +131,10 @@ class SurvosUtils
     }
 
     /**
-     * Stable admin/browser code for an entity class.
-     *
-     * Examples:
-     * - App\Entity\Intake => app_intake
-     * - Survos\OutreachBundle\Entity\Contact => outreach_contact
-     *
+     * @deprecated Use \Survos\FieldBundle\Compiler\EntityMetaPass::entityCode() instead.
      * @param class-string $class
      */
+    #[\Deprecated('Use Survos\FieldBundle\Compiler\EntityMetaPass::entityCode() instead')]
     public static function entityCode(string $class): string
     {
         $parts = explode('\\', ltrim($class, '\\'));
