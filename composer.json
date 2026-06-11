@@ -19,7 +19,6 @@
         "ext-zlib": "*"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-latest",
         "doctrine/orm": "^2.12 || ^3.3",
         "phpstan/phpstan": "^2.0",
         "symfony/browser-kit": "^8.1",
