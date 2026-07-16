@@ -1,42 +1,38 @@
 # Corebundle
 
-Symfony Bundle with interfaces, traits, models and services needed by more than one Survos components.  For example, Model\Column is used by grid, api-grid and simple-datatables.  RouteParametersInterface is used by tree and the griid bundles.
-
-
-https://github.com/symfony/symfony/issues/20083
-
+Symfony Bundle with interfaces, traits, models and services needed by more than one Survos component. For example, Model\Column is used by grid, api-grid and simple-datatables.
 
 ```bash
 composer req survos/core-bundle
 ```
+
+## Route identity (deprecated here — use field-bundle)
+
+`RouteParametersInterface` / `RouteParametersTrait` (the `UNIQUE_PARAMETERS`
+const pattern) are deprecated and will be removed in the next major release.
+Declare route identity with field-bundle instead:
 
 ```php
 <?php
 // src/Entity/Foo.php
 namespace App\Entity;
 
-use Survos\CoreBundle\Entity\RouteParametersInterface;
-use Survos\CoreBundle\Entity\RouteParametersTrait;
+use Survos\FieldBundle\Attribute\RouteIdentity;
+use Survos\FieldBundle\Entity\RouteIdentityTrait;
+use Survos\FieldBundle\Entity\RouteParametersInterface;
 
+#[RouteIdentity(field: 'code')]
 class Foo implements RouteParametersInterface
 {
-use RouteParametersTrait;
-
-public function getUniqueParams(): array { 
-    return ['fooId' => $this->getFooCode()];
+    use RouteIdentityTrait;
 }
 ```
 
-Now use .rp in twig and ->getRp() in php as part of generating a route
-```twig
-<a href="{{ path('foo_show', foo.rp) }}">Show</a>
-```
-
-Combined with survos/maker-bundle, create a param converter
-
-```bash
-bin/console survos:make:param-converter Foo
-```
+`foo.rp` in twig and `$foo->getRp()` in php still work exactly as before, and
+controllers can type-hint `Foo` directly — field-bundle's
+`RouteIdentityValueResolver` looks the entity up from the `fooId` route
+parameter. See `showcase/CONVENTIONS.md` ("Entity injection") for the full
+convention.
 
 ## Helper Tasks
 
@@ -53,23 +49,15 @@ Common static helpers:
 | Helper | Purpose |
 | --- | --- |
 | `SurvosUtils::slugify($code, separator: '_')` | Stable ASCII slugs for route codes, index names, file-safe identifiers, and bundle metadata. |
-| `SurvosUtils::entityCode($class)` | Stable admin/browser code for entity classes. `App\Entity\Intake` becomes `app_intake`; `Survos\OutreachBundle\Entity\Contact` becomes `outreach_contact`. Used by api-grid and Tabler admin menus. |
 | `SurvosUtils::formatLargeNumber($number)` | Compact counts for badges and summaries, e.g. `1.2k` or `3.4m`. |
 | `SurvosUtils::humanFilesize($size)` | Human readable byte sizes. |
 | `SurvosUtils::parseQueryString($data)` | Query-string parsing that preserves parameter names Symfony/PHP would otherwise normalize. |
 | `SurvosUtils::actualClass($objectOrClass)` | Resolve Doctrine proxy classes back to their real class name. |
 | `SurvosUtils::createDir($dir)` | Create a directory if missing and return its real path with a trailing slash. |
-| `SurvosUtils::assertKeyExists()` / `assertInArray()` | Assertions with useful “missing key/value” diagnostics. |
 
-Example:
-
-```php
-use App\Entity\Intake;
-use Survos\CoreBundle\Service\SurvosUtils;
-
-$code = SurvosUtils::entityCode(Intake::class); // app_intake
-$route = $code . '_show';                       // app_intake_show
-```
+Entity codes (`app_intake` from `App\Entity\Intake`) now come from
+`Survos\FieldBundle\Compiler\EntityMetaPass::entityCode()`; assertions with
+"missing key/value" diagnostics live in `Survos\DebugUtils\Assert`.
 
 Instance helpers are available when the service is injected:
 

@@ -10,7 +10,6 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
-use function Symfony\Component\String\u;
 use \SplFileObject as SplFileObject;
 
 class SurvosUtils
@@ -66,7 +65,13 @@ class SurvosUtils
             if (is_array($value)) {
                 $pathKey = $key;
                 if (is_numeric($key)) {
-                    self::assertKeyExists('code', $value);
+                    if (class_exists(\Survos\DebugUtils\Assert::class)) {
+                        \Survos\DebugUtils\Assert::keyExists('code', $value);
+                    } elseif (!array_key_exists('code', $value)) {
+                        throw new \InvalidArgumentException(
+                            'Missing required "code" key while flattening messages.'
+                        );
+                    }
                     $pathKey = $value['code'];
 //                    unset($messages[$key]);
 //                    dd($key, $value);
@@ -129,34 +134,6 @@ class SurvosUtils
         return strtolower($slug->toString());
 
     }
-
-    /**
-     * @deprecated Use \Survos\FieldBundle\Compiler\EntityMetaPass::entityCode() instead.
-     * @param class-string $class
-     */
-    #[\Deprecated('Use Survos\FieldBundle\Compiler\EntityMetaPass::entityCode() instead')]
-    public static function entityCode(string $class): string
-    {
-        $parts = explode('\\', ltrim($class, '\\'));
-        $prefix = 'App';
-
-        foreach ($parts as $part) {
-            if ($part === 'App') {
-                $prefix = 'App';
-                break;
-            }
-
-            if (str_ends_with($part, 'Bundle')) {
-                $prefix = substr($part, 0, -6);
-                break;
-            }
-        }
-
-        $shortName = (new \ReflectionClass($class))->getShortName();
-
-        return self::slugify(u($prefix)->snake()->toString()) . '_' . self::slugify(u($shortName)->snake()->toString());
-    }
-
 
     public static function humanFilesize($size, $precision = 2): string
     {
@@ -226,21 +203,6 @@ class SurvosUtils
     {
         sort($keys, SORT_STRING);
         return sprintf("Missing [%s]:\n%s", $key, join("\n", $keys));
-    }
-
-
-    /** @deprecated Use \Survos\DebugUtils\Assert::keyExists() instead. */
-    #[\Deprecated('Use Survos\DebugUtils\Assert::keyExists() instead')]
-    public static function assertKeyExists($key, array|object $array, string $message = ''): void
-    {
-        \Survos\DebugUtils\Assert::keyExists($key, $array, $message);
-    }
-
-    /** @deprecated Use \Survos\DebugUtils\Assert::inArray() instead. */
-    #[\Deprecated('Use Survos\DebugUtils\Assert::inArray() instead')]
-    public static function assertInArray($key, array $array, string $message = ''): void
-    {
-        \Survos\DebugUtils\Assert::inArray($key, $array, $message);
     }
 
 
