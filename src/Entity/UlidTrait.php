@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Survos\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -24,7 +26,7 @@ trait UlidTrait
     #[ORM\PrePersist]
     public function initUlid(): void
     {
-        if ($this->id === null) {
+        if (null === $this->id) {
             $this->id = (string) new Ulid();
         }
     }

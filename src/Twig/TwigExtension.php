@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Survos\CoreBundle\Twig;
 
 use Survos\CoreBundle\Service\SurvosUtils;
@@ -15,8 +17,8 @@ class TwigExtension extends AbstractExtension
         return [
             // If your filter generates SAFE HTML, add ['is_safe' => ['html']]
             // Reference: https://twig.symfony.com/doc/3.x/advanced.html#automatic-escaping
-            new TwigFilter('get_class', fn(object $obj) => $obj::class),
-            new TwigFilter('format_large_number', fn(int $x) => SurvosUtils::formatLargeNumber($x)),
+            new TwigFilter('get_class', fn (object $obj) => $obj::class),
+            new TwigFilter('format_large_number', fn (int $x) => SurvosUtils::formatLargeNumber($x)),
             new TwigFilter('json_pretty', $this->json_pretty(...), ['is_safe' => ['html']]),
 
             new TwigFilter('short_class', $this->short_class(...)),
@@ -27,24 +29,24 @@ class TwigExtension extends AbstractExtension
     {
         try {
             $name = (new \ReflectionClass($obj))->getShortName();
-
-            } catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             $name = is_object($obj) ? get_class($obj) : $obj;
         }
+
         return $name;
     }
 
     public function getFunctions(): array
     {
         return [
-//            new TwigFunction('function_name', [::class, 'doSomething']),
+            //            new TwigFunction('function_name', [::class, 'doSomething']),
         ];
     }
 
     public function getTests(): array
     {
         return [
-            new TwigTest('instanceof', fn(mixed $var, string $class) => $var instanceof $class),
+            new TwigTest('instanceof', fn (mixed $var, string $class) => $var instanceof $class),
         ];
     }
 
@@ -58,9 +60,9 @@ class TwigExtension extends AbstractExtension
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         if ($wrapper) {
             // @todo: attributes
-            $json = sprintf("<%s>%s</%s>", $wrapper, $json, $wrapper);
+            $json = sprintf('<%s>%s</%s>', $wrapper, $json, $wrapper);
         }
+
         return $json;
     }
-
 }

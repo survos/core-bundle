@@ -35,7 +35,8 @@ final class BundleRouteLoader
         private string $controllerDir,
         private string $routePrefix,
         private LoaderInterface $attributeDirectoryLoader,
-    ) {}
+    ) {
+    }
 
     public function __invoke(LoaderInterface $loader, ?string $_env): RouteCollection
     {
@@ -49,7 +50,7 @@ final class BundleRouteLoader
         /** @var RouteCollection $bundleRoutes */
         $bundleRoutes = $this->attributeDirectoryLoader->load($this->controllerDir, 'attribute');
 
-        if ($this->routePrefix !== '') {
+        if ('' !== $this->routePrefix) {
             $bundleRoutes->addPrefix($this->routePrefix);
         }
 

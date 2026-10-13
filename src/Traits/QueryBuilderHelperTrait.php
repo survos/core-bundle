@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Survos\CoreBundle\Traits;
 
 /**
- * @deprecated Use \Survos\FieldBundle\Repository\QueryBuilderHelperTrait instead.
+ * @deprecated use \Survos\FieldBundle\Repository\QueryBuilderHelperTrait instead
  */
 trait QueryBuilderHelperTrait
 {

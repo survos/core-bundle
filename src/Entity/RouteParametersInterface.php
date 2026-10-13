@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Survos\CoreBundle\Entity;
 
 /**
@@ -13,5 +15,5 @@ interface RouteParametersInterface
 
     public function getRp(?array $addlParams = []): array;
 
-    public static function getClassnamePrefix(string|null $class = null): string;
+    public static function getClassnamePrefix(?string $class = null): string;
 }

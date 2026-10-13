@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Survos\CoreBundle\Entity;
 
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -17,13 +19,12 @@ use function Symfony\Component\String\u;
  */
 trait RouteParametersTrait
 {
-//    public function getId(): int|string
-//    {
-//        throw new \Exception("you must implement getId() to use a default unique parameters in " . $this::class);
-//    }
+    //    public function getId(): int|string
+    //    {
+    //        throw new \Exception("you must implement getId() to use a default unique parameters in " . $this::class);
+    //    }
 
-//    private const array UNIQUE_PARAMETERS = ['id' => 'id'];
-
+    //    private const array UNIQUE_PARAMETERS = ['id' => 'id'];
 
     public function getUniqueIdentifiers(): array
     {
@@ -33,19 +34,21 @@ trait RouteParametersTrait
                 if (class_exists($getter)) {
                     dd($parameter, $getter);
                 }
-                if (method_exists($this, $methodGetter = 'get' . $getter)) {
-                    $x[$parameter] = $this->{'get' . $getter}();
+                if (method_exists($this, $methodGetter = 'get'.$getter)) {
+                    $x[$parameter] = $this->{'get'.$getter}();
                 } else {
                     $x[$parameter] = $this->$getter;
                 }
             }
+
             return $x;
         }
 
         if (!method_exists($this, 'getId')) {
-            throw new \Exception("you must implement getId() to use a default unique parameters in " . $this::class);
+            throw new \Exception('you must implement getId() to use a default unique parameters in '.$this::class);
         }
-        $uniqueIds =  [strtolower((new \ReflectionClass($this))->getShortName()) . 'Id' => $this->getId()];
+        $uniqueIds = [strtolower((new \ReflectionClass($this))->getShortName()).'Id' => $this->getId()];
+
         return $uniqueIds;
     }
 
@@ -56,9 +59,9 @@ trait RouteParametersTrait
     }
 
     /** e.g. MemberDirectory to member_directory */
-    public static function getClassnamePrefix(string|null $class = null): string
+    public static function getClassnamePrefix(?string $class = null): string
     {
-        if (! $class) {
+        if (!$class) {
             $class = get_called_class();
         }
         $shortName = strtolower(u($x = (new \ReflectionClass($class))->getShortName())->snake()->lower()->ascii());
@@ -72,7 +75,7 @@ trait RouteParametersTrait
         // hack, the first value
         $rp = $this->getUniqueIdentifiers();
         $pk = array_key_first($rp);
-        return ['entityId' => $rp[$pk]];
 
+        return ['entityId' => $rp[$pk]];
     }
 }

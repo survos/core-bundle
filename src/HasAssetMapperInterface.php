@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Survos\CoreBundle;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;

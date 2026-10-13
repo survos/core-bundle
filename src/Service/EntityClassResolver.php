@@ -1,10 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Survos\CoreBundle\Service;
 
 use Doctrine\Persistence\ManagerRegistry;
-use RuntimeException;
 
 /**
  * Resolve entity class names from short names using Doctrine metadata.
@@ -46,9 +46,6 @@ final class EntityClassResolver
             }
         }
 
-        throw new RuntimeException(sprintf(
-            'Cannot resolve entity class for "%s". Try using the full FQCN (e.g. "App\\Entity\\Wam").',
-            $name
-        ));
+        throw new \RuntimeException(sprintf('Cannot resolve entity class for "%s". Try using the full FQCN (e.g. "App\\Entity\\Wam").', $name));
     }
 }

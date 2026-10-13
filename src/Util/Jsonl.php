@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Survos\CoreBundle\Util;
@@ -23,27 +24,37 @@ final class Jsonl
         $count = 0;
         if ($gzip) {
             $h = \gzopen($path, 'rb');
-            if (!$h) return 0;
+            if (!$h) {
+                return 0;
+            }
 
             // Read in chunks for speed; count "\n"
             while (!\gzeof($h)) {
                 $chunk = \gzread($h, 1 << 20); // 1 MiB
-                if ($chunk === false) break;
+                if (false === $chunk) {
+                    break;
+                }
                 $count += substr_count($chunk, "\n");
             }
             \gzclose($h);
+
             return $count;
         }
 
         $h = \fopen($path, 'rb');
-        if (!$h) return 0;
+        if (!$h) {
+            return 0;
+        }
 
         while (!\feof($h)) {
             $chunk = \fread($h, 1 << 20);
-            if ($chunk === false) break;
+            if (false === $chunk) {
+                break;
+            }
             $count += substr_count($chunk, "\n");
         }
         \fclose($h);
+
         return $count;
     }
 

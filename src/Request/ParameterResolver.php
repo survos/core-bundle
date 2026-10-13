@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Survos\CoreBundle\Request;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,7 +34,8 @@ class ParameterResolver implements ValueResolverInterface
     public function __construct(
         // core-bundle may be installed in projects with no entity manager
         private ?EntityManagerInterface $entityManager = null,
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<mixed>
@@ -49,7 +52,8 @@ class ParameterResolver implements ValueResolverInterface
         }
 
         $entity = $this->lookup($type, $request);
-        return $entity === null ? [] : [$entity];
+
+        return null === $entity ? [] : [$entity];
     }
 
     /**
@@ -64,13 +68,13 @@ class ParameterResolver implements ValueResolverInterface
             ? \Survos\FieldBundle\Service\RouteIdentityResolver::lookup($entityClass)
             : null;
 
-        if ($identity !== null) {
+        if (null !== $identity) {
             $criteria = $this->criteriaFromRouteIdentity($entityClass, $identity, $request);
         } else {
             $criteria = $this->criteriaFromLegacyConst($entityClass, $request);
         }
 
-        if ($criteria === null) {
+        if (null === $criteria) {
             return null;
         }
 
@@ -82,9 +86,9 @@ class ParameterResolver implements ValueResolverInterface
      */
     private function criteriaFromRouteIdentity(string $entityClass, RouteIdentity $identity, Request $request): ?array
     {
-        $key   = $identity->key ?? lcfirst((new \ReflectionClass($entityClass))->getShortName()) . 'Id';
+        $key = $identity->key ?? lcfirst((new \ReflectionClass($entityClass))->getShortName()).'Id';
         $value = $request->attributes->get($key);
-        if ($value === null || \is_object($value)) {
+        if (null === $value || \is_object($value)) {
             return null;
         }
 
@@ -92,11 +96,11 @@ class ParameterResolver implements ValueResolverInterface
 
         foreach ($identity->parents as $parentProp) {
             $parentClass = $this->parentEntityClass($entityClass, $parentProp);
-            if ($parentClass === null) {
+            if (null === $parentClass) {
                 continue;
             }
             $parent = $this->lookup($parentClass, $request);
-            if ($parent !== null) {
+            if (null !== $parent) {
                 $criteria[$parentProp] = $parent;
             }
         }
@@ -109,7 +113,7 @@ class ParameterResolver implements ValueResolverInterface
      */
     private function criteriaFromLegacyConst(string $entityClass, Request $request): ?array
     {
-        $const = $entityClass . '::UNIQUE_PARAMETERS';
+        $const = $entityClass.'::UNIQUE_PARAMETERS';
         if (!defined($const)) {
             return null;
         }
@@ -120,12 +124,12 @@ class ParameterResolver implements ValueResolverInterface
                 continue; // unsupported legacy shape (parent-by-class), out of scope
             }
             $value = $request->attributes->get($param);
-            if ($value !== null && !\is_object($value)) {
+            if (null !== $value && !\is_object($value)) {
                 $criteria[$getter] = $value;
             }
         }
 
-        return $criteria === [] ? null : $criteria;
+        return [] === $criteria ? null : $criteria;
     }
 
     private function parentEntityClass(string $entityClass, string $prop): ?string
@@ -135,22 +139,20 @@ class ParameterResolver implements ValueResolverInterface
         } catch (\Throwable) {
             return null;
         }
+
         return $meta->hasAssociation($prop) ? $meta->getAssociationTargetClass($prop) : null;
     }
 
     /**
-     * @param  array<string, mixed> $criteria
+     * @param array<string, mixed> $criteria
      */
     private function find(string $entityClass, array $criteria): object
     {
         $entity = $this->entityManager->getRepository($entityClass)->findOneBy($criteria);
-        if ($entity === null) {
-            throw new \RuntimeException(sprintf(
-                'Could not resolve %s from %s.',
-                $entityClass,
-                json_encode($criteria, \JSON_UNESCAPED_SLASHES),
-            ));
+        if (null === $entity) {
+            throw new \RuntimeException(sprintf('Could not resolve %s from %s.', $entityClass, json_encode($criteria, \JSON_UNESCAPED_SLASHES)));
         }
+
         return $entity;
     }
 }

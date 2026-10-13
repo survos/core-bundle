@@ -46,8 +46,8 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 trait HasConfigurableRoutes
 {
-    private bool   $routesEnabled = true;
-    private string $routePrefix   = '';
+    private bool $routesEnabled = true;
+    private string $routePrefix = '';
 
     /**
      * Add the standard `routes_enabled` + `route_prefix` nodes to a bundle's
@@ -79,7 +79,7 @@ trait HasConfigurableRoutes
     protected function captureRouteConfig(array $config): void
     {
         $this->routesEnabled = (bool) ($config['routes_enabled'] ?? true);
-        $this->routePrefix   = (string) ($config['route_prefix'] ?? '');
+        $this->routePrefix = (string) ($config['route_prefix'] ?? '');
     }
 
     /**
@@ -102,9 +102,9 @@ trait HasConfigurableRoutes
         }
 
         $builder->register($this->routeLoaderServiceId(), BundleRouteLoader::class)
-            ->setArgument('$originalResource',         '') // overwritten by the compiler pass
-            ->setArgument('$controllerDir',            $controllerDir)
-            ->setArgument('$routePrefix',              $this->routePrefix)
+            ->setArgument('$originalResource', '') // overwritten by the compiler pass
+            ->setArgument('$controllerDir', $controllerDir)
+            ->setArgument('$routePrefix', $this->routePrefix)
             ->setArgument('$attributeDirectoryLoader', new Reference('routing.loader.attribute.directory'))
             ->addTag('routing.route_loader');
     }
@@ -130,7 +130,7 @@ trait HasConfigurableRoutes
      */
     protected function controllerDirectory(): string
     {
-        return \dirname((new \ReflectionClass($this))->getFileName()) . '/Controller/';
+        return \dirname((new \ReflectionClass($this))->getFileName()).'/Controller/';
     }
 
     /**
@@ -140,6 +140,6 @@ trait HasConfigurableRoutes
     {
         // AbstractBundle exposes the alias via its lazy-initialized extension
         // (e.g. SurvosStorageBundle → 'survos_storage').
-        return $this->getContainerExtension()->getAlias() . '.route_loader';
+        return $this->getContainerExtension()->getAlias().'.route_loader';
     }
 }

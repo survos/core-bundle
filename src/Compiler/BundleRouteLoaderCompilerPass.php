@@ -29,7 +29,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 final class BundleRouteLoaderCompilerPass implements CompilerPassInterface
 {
-    public function __construct(private string $loaderServiceId) {}
+    public function __construct(private string $loaderServiceId)
+    {
+    }
 
     public function process(ContainerBuilder $container): void
     {

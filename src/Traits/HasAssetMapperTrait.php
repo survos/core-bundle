@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Survos\CoreBundle\Traits;
 
 use Symfony\Component\AssetMapper\AssetMapperInterface;
@@ -49,7 +51,7 @@ trait HasAssetMapperTrait
 
             $package = preg_replace('#^survos/#', '', $package) ?? $package;
 
-            return '@survos/' . trim($package, '/');
+            return '@survos/'.trim($package, '/');
         }
 
         $shortName = (new \ReflectionClass($this))->getShortName();
@@ -57,7 +59,7 @@ trait HasAssetMapperTrait
         $shortName = preg_replace('/Bundle$/', '', $shortName) ?? $shortName;
         $slug = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '-$0', $shortName));
 
-        return '@survos/' . $slug;
+        return '@survos/'.$slug;
     }
 
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void

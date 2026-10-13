@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Survos\CoreBundle;
 
 use Survos\CoreBundle\Request\ParameterResolver;
@@ -11,13 +13,11 @@ use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class SurvosCoreBundle extends AbstractBundle
 {
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-
         // twig classes
         $builder
             ->autowire('survos.core_twig', TwigExtension::class)
@@ -37,8 +37,6 @@ class SurvosCoreBundle extends AbstractBundle
         $builder->autowire(EntityClassResolver::class)
             ->setPublic(false)
             ->setAutoconfigured(true);
-
-
 
         $builder
             ->autowire(ParameterResolver::class)
