@@ -64,10 +64,11 @@ trait RouteParametersTrait
         if (!$class) {
             $class = get_called_class();
         }
-        $shortName = strtolower(u($x = (new \ReflectionClass($class))->getShortName())->snake()->lower()->ascii());
 
-        //        $shortName = strtolower( (new \ReflectionClass(get_called_class()))->getShortName() );
-        return $shortName;
+        // ->ascii() returns an AbstractString, and this file is strict_types=1, so
+        // passing it to strtolower() is a hard TypeError rather than a coercion.
+        // ->lower() has already lowercased it; just unwrap to a string.
+        return u((new \ReflectionClass($class))->getShortName())->snake()->lower()->ascii()->toString();
     }
 
     public function erp(): array
