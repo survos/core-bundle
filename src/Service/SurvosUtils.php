@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Survos\CoreBundle\Service;
 
-use Doctrine\Common\Util\ClassUtils;
 use SplFileObject;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -183,9 +182,15 @@ class SurvosUtils
         return realpath($dir).'/';
     }
 
-    public static function actualClass(string|object $classOrEntity)
+    /**
+     * The class behind a Doctrine proxy (Proxies\__CG__\App\Entity\Foo becomes App\Entity\Foo).
+     */
+    public static function actualClass(string|object $classOrEntity): string
     {
-        return ClassUtils::getRealClass(is_string($classOrEntity) ? $classOrEntity : $classOrEntity::class);
+        $class = is_string($classOrEntity) ? $classOrEntity : $classOrEntity::class;
+        $pos = strrpos($class, '\\__CG__\\');
+
+        return false === $pos ? $class : substr($class, $pos + 8);
     }
 
     public static function trimmer(string $label): string
